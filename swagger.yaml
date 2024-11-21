@@ -1,0 +1,321 @@
+openapi: 3.0.0
+info:
+  title: Guests Management API's
+  version: 1.0.0
+  description: API for managing guests and linking them to orders
+paths:
+  /guests:
+    post:
+      summary: Create guests and link them to orders
+      description: Creates new guests and links them to orders by storing the mapping in the guests_order_mapping table.
+      operationId: createGuests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+                - guests
+              properties:
+                order_id:
+                  type: string
+                  description: Unique identifier for the order
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                guests:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - email
+                      - phone_number
+                      - user_id
+                    properties:
+                      name:
+                        type: string
+                        description: Name of the guest
+                        example: "Anudeep"
+                      email:
+                        type: string
+                        description: Email of the guest
+                        example: "anudeep@gmail.com"
+                      phone_number:
+                        type: string
+                        description: Phone number of the guest
+                        example: "8494939383"
+      responses:
+        '200':
+          description: Guests created and linked to order successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: "Guests created and linked to order successfully"
+                  guest_order_mappings:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        guest_order_id:
+                          type: string
+                          example: "123e4567-e89b-12d3-a456-426614174002"
+                        guest_id:
+                          type: string
+                          example: "123e4567-e89b-12d3-a456-426614174003"
+                        order_id:
+                          type: string
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        name:
+                          type: string
+                          example: "Anudeep"
+                        email:
+                          type: string
+                          example: "anudeep@gmail.com"
+                        phone_number:
+                          type: string
+                          example: "8494939383"
+                        status:
+                          type: string
+                          example: "active"
+
+  /guests/{guest_id}/order:
+    put:
+      summary: Update or Add a guest to an order
+      description: Associates a guest with a specific order. If no mapping exists, a new entry will be created, linking the guest to the order
+      operationId: updateOrAddGuestToOrder
+      parameters:
+        - name: guest_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the guest
+          example: "123e4567-e89b-12d3-a456-426614174003"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+              properties:
+                order_id:
+                  type: string
+                  description: The order ID to which the guest should be linked
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                status:
+                  type: string
+                  description: Status of the guest in relation to the order (e.g., active, removed, cancelled)
+                  example: "active"
+      responses:
+        '200':
+          description: Guest successfully associated with the order (updated or created)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: "Guest successfully linked to the order"
+                  guest_order_mapping:
+                    type: object
+                    properties:
+                      guest_order_id:
+                        type: string
+                        example: "123e4567-e89b-12d3-a456-426614174002"
+                      guest_id:
+                        type: string
+                        example: "123e4567-e89b-12d3-a456-426614174003"
+                      order_id:
+                        type: string
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      status:
+                        type: string
+                        example: "active"
+
+  /orders/{order_id}/guests:
+    get:
+      summary: Get all guests for an order
+      description: Fetches the list of guests linked to a specific order.
+      operationId: getGuestsForOrder
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the order
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Successfully fetched guests for the order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_id:
+                    type: string
+                    example: "123e4567-e89b-12d3-a456-426614174000"
+                  guests:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        guest_id:
+                          type: string
+                          example: "123e4567-e89b-12d3-a456-426614174003"
+                        name:
+                          type: string
+                          example: "John Doe"
+                        email:
+                          type: string
+                          example: "john.doe@example.com"
+                        phone_number:
+                          type: string
+                          example: "1234567890"
+                        status:
+                          type: string
+                          example: "active"
+
+  /guests/{guest_id}:
+    patch:
+      summary: Update guest details
+      description: Updates the details of an existing guest.
+      operationId: updateGuest
+      parameters:
+        - name: guest_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the guest
+          example: "123e4567-e89b-12d3-a456-426614174003"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Updated name of the guest
+                  example: "Anudeep"
+                email:
+                  type: string
+                  description: Updated email of the guest
+                  example: "anudeep4n@gmail.com"
+                phone_number:
+                  type: string
+                  description: Updated phone number of the guest
+                  example: "8494939383"
+                status:
+                  type: string
+                  description: Status of the guest (e.g., active, inactive)
+                  example: "active"
+      responses:
+        '200':
+          description: Guest updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: "Guest updated successfully"
+                  guest:
+                    type: object
+                    properties:
+                      guest_id:
+                        type: string
+                        example: "123e4567-e89b-12d3-a456-426614174003"
+                      name:
+                        type: string
+                        example: "Anudeep"
+                      email:
+                        type: string
+                        example: "anudeep4n@gmail.com"
+                      phone_number:
+                        type: string
+                        example: "8494939383"
+                      status:
+                        type: string
+                        example: "active"
+  /orders/{order_id}/cancel:
+    delete:
+      summary: Cancel entire order and update all guest statuses to 'cancelled'
+      description: Updates the status of all guests linked to the specified order to "cancelled" in the guests_order_mapping table when the order is cancelled.
+      operationId: cancelOrderAndGuests
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the order
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Order cancelled and guests' status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: "Order cancelled and all associated guests' statuses set to 'cancelled'"
+
+  /orders/{order_id}/guests/{guest_id}:
+    delete:
+      summary: Remove guest from specific order
+      description: Removes a guest from a specific order by removing their entry from the guests_order_mapping table.
+      operationId: removeGuestFromOrder
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the order
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        - name: guest_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the guest
+          example: "123e4567-e89b-12d3-a456-426614174003"
+      responses:
+        '200':
+          description: Guest removed successfully from the order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: "Guest removed successfully from the order"
+  
