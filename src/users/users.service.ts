@@ -2,7 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Users } from './entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { weworkLogger } from 'wework-logger';
 
+const logger = weworkLogger(
+  { logToConsole: true, level: 'debug' },
+  {
+    app: { name: 'Nest-initial-app', version: '1.0.0' },
+    deployInfo: { env: 'local' },
+  },
+);
 @Injectable()
 export class UsersService {
   constructor(
@@ -13,6 +21,8 @@ export class UsersService {
   // Get user data by email
   async getUserByEmail(email: string): Promise<Users> {
     const user = await this.usersRepository.findOne({ where: { email } });
+    console.log(`user ${JSON.stringify(user)}`);
+    logger.important(`user ${JSON.stringify(user)}`);
     if (!user) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
